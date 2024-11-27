@@ -32,10 +32,10 @@ path_to_data <- readline(prompt="path = ")
 
 # OR
 
-cores_ram(4,6)
-setwd("C:/Users/Aurelio/Documents/BioInfo/TutorialSingleCellRNAseq")
-name_sc_data <- "b16"
-path_to_data <- "raw_data/haining"
+cores_ram(,)
+setwd("")
+name_sc_data <- ""
+path_to_data <- ""
 
 # _______________________________________________________________________________
 
@@ -85,7 +85,7 @@ cluster_markers <- FindAllMarkers(sc_data, only.pos = TRUE, min.pct = 0.25, logf
 
 
 # Specify the genes of interest OR use gene_oI()
-genes_of_interest <- c("Ptprc") 
+genes_of_interest <- c("") 
 
 # Filter markers for genes of interest
 de_genes <- cluster_markers %>% filter(gene %in% genes_of_interest) 
