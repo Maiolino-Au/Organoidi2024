@@ -70,6 +70,7 @@ sc_data <- RunPCA(sc_data, npcs = 50, verbose = FALSE)
 # Cluster the cells
 sc_data <- FindNeighbors(sc_data, dims = 1:40)
 sc_data <- FindClusters(sc_data, resolution = 0.6)
+table(Idents(sc_data))
 
 # Perform non-linear dimensionality reduction (UMAP/t-SNE)
 sc_data_UMAP <- RunUMAP(sc_data, dims = 1:40)
