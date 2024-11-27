@@ -13,6 +13,7 @@ if (i=="y") {
 library(Seurat)
 library(tidyverse)
 library(future)
+library(ggplot2)
 
 
 # Read in data
