@@ -65,7 +65,7 @@ sc_data <- sc_data_SD
 # Perform dimensionality reduction (PCA)
 sc_data <- RunPCA(sc_data, npcs = 50, verbose = FALSE)
 
-ElbowPlot(object = sc_data, ndims = 50)
+# ElbowPlot(object = sc_data, ndims = 50)
 
 # Cluster the cells
 sc_data <- FindNeighbors(sc_data, dims = 1:40)
