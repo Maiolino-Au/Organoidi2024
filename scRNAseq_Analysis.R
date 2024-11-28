@@ -13,8 +13,8 @@ gene_oI <- function() {
   genes_of_interest <- readline(prompt="Gene of interest: ")
   de_genes <- cluster_markers %>% filter(gene %in% genes_of_interest) # Filter markers for genes of interest
   print(de_genes) # View the differential expression results
-  goi_plot_UMAP <- FeaturePlot(sc_data_UMAP, features = genes_of_interest) + ggtitle(paste(genes_of_interest,"(UMAP)"))
-  goi_plot_tSNE <- FeaturePlot(sc_data_tSNE, features = genes_of_interest) + ggtitle(paste(genes_of_interest,"(tSNE)"))
+  goi_plot_UMAP <- FeaturePlot(sc_data_UMAP, features = genes_of_interest) + ggtitle(paste(genes_of_interest,"(UMAP)",name_sc_data))
+  goi_plot_tSNE <- FeaturePlot(sc_data_tSNE, features = genes_of_interest) + ggtitle(paste(genes_of_interest,"(tSNE)",name_sc_data))
   CombinePlots(plot=list(goi_plot_UMAP,goi_plot_tSNE), ncol=2) 
 }
 
@@ -32,14 +32,14 @@ path_to_data <- readline(prompt="path = ")
 
 # OR
 
-cores_ram(,)
-setwd("")
-name_sc_data <- ""
-path_to_data <- ""
+cores_ram(4,6)
+setwd("/home/user/Documents/organoidi_2024/Data - 3 - Organoidi_velasco")
+name_sc_data <- "days23"
+path_to_data <- "Data/expression_23days"
 
 # _______________________________________________________________________________
 
-raw_sc_data <- Read10X(data.dir = path_to_data) # gene.column = 1 -> Ensembl Gene IDs; = 2 -> Gene Symbols (default)
+raw_sc_data <- Read10X(data.dir = path_to_data, gene.column = 1) 
 
 # Create Seurat object
 sc_data_SeuObj <- CreateSeuratObject(counts = raw_sc_data, min.cells = 3, min.features = 200, project = name_sc_data, names.delim = "-", names.field = 2)
@@ -77,8 +77,8 @@ sc_data_UMAP <- RunUMAP(sc_data, dims = 1:40)
 sc_data_tSNE <- RunTSNE(sc_data, dims = 1:40)
 
 # Visualization of clusters
-plot_UMAP <- DimPlot(sc_data_UMAP, reduction = "umap", label = TRUE, pt.size = 1) + ggtitle("UMAP of Clusters")
-plot_tSNE <- DimPlot(sc_data_tSNE, reduction = "tsne", label = TRUE, pt.size = 1) + ggtitle("tSNE of Clusters")
+plot_UMAP <- DimPlot(sc_data_UMAP, reduction = "umap", label = TRUE, pt.size = 1) + ggtitle(paste("UMAP of Clusters -",name_sc_data))
+plot_tSNE <- DimPlot(sc_data_tSNE, reduction = "tsne", label = TRUE, pt.size = 1) + ggtitle(paste("tSNE of Clusters -",name_sc_data))
 CombinePlots(plot=list(plot_UMAP,plot_tSNE), ncol=2)
 
 # Perform differential expression analysis
@@ -86,7 +86,7 @@ cluster_markers <- FindAllMarkers(sc_data, only.pos = TRUE, min.pct = 0.25, logf
 
 
 # Specify the genes of interest OR use gene_oI()
-genes_of_interest <- c("") 
+genes_of_interest <- c("SRCIN1") 
 
 # Filter markers for genes of interest
 de_genes <- cluster_markers %>% filter(gene %in% genes_of_interest) 
@@ -95,10 +95,9 @@ de_genes <- cluster_markers %>% filter(gene %in% genes_of_interest)
 print(de_genes)
 
 # Visualize expression of specific genes
-goi_plot_UMAP <- FeaturePlot(sc_data_UMAP, features = genes_of_interest) + ggtitle(paste(genes_of_interest,"(UMAP)"))
-goi_plot_tSNE <- FeaturePlot(sc_data_tSNE, features = genes_of_interest) + ggtitle(paste(genes_of_interest,"(tSNE)"))
+goi_plot_UMAP <- FeaturePlot(sc_data_UMAP, features = genes_of_interest) + ggtitle(paste(genes_of_interest,"(UMAP)",name_sc_data))
+goi_plot_tSNE <- FeaturePlot(sc_data_tSNE, features = genes_of_interest) + ggtitle(paste(genes_of_interest,"(tSNE)",name_sc_data))
 CombinePlots(plot=list(goi_plot_UMAP,goi_plot_tSNE), ncol=2)
-
 
 
 
