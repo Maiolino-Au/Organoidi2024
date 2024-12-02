@@ -101,7 +101,7 @@ jpeg(paste("Results/",name_sc_data,"_results/",name_sc_data,"_ClusterPlot",sep="
 CombinePlots(plot=list(plot_UMAP,plot_tSNE), ncol=2)
 dev.off()
 
-cores_ram(4,6)
+cores_ram(2,13)
 
 # Perform differential expression analysis
 cluster_markers <- FindAllMarkers(sc_data, only.pos = TRUE, min.pct = 0.1, logfc.threshold = 0.1)
