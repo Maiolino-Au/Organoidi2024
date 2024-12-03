@@ -96,7 +96,7 @@ plot_tSNE <- DimPlot(sc_data_tSNE, reduction = "tsne", label = TRUE, pt.size = 1
 CombinePlots(plot=list(plot_UMAP,plot_tSNE), ncol=2)
 
 # Save
-jpeg(paste("Results/",name_sc_data,"_results/",name_sc_data,"_ClusterPlot",sep=""),width=1920, height=1080)
+jpeg(paste("Results/",name_sc_data,"_results/",name_sc_data,"_ClusterPlot.jpg",sep=""),width=1920, height=1080)
 CombinePlots(plot=list(plot_UMAP,plot_tSNE), ncol=2)
 dev.off()
 
@@ -129,7 +129,7 @@ goi_plot_tSNE <- FeaturePlot(sc_data_tSNE, features = genes_of_interest) + ggtit
 CombinePlots(plot=list(goi_plot_UMAP,goi_plot_tSNE), ncol=2)
 
 # Save
-jpeg(paste("Results/",name_sc_data,"_results/",name_sc_data,"_",genes_of_interest,"_ClusterPlot",sep=""),width=1920, height=1080)
+jpeg(paste("Results/",name_sc_data,"_results/",name_sc_data,"_",genes_of_interest,"_ClusterPlot.jpg",sep=""),width=1920, height=1080)
 CombinePlots(plot=list(goi_plot_UMAP,goi_plot_tSNE), ncol=2)
 dev.off()
 
@@ -137,13 +137,13 @@ dev.off()
 # save(sc_data, file = paste("Results/",name_sc_data,"_results/",name_sc_data,"_clustered.Robj", sep=""))
 # save(sc_data_UMAP, file = paste("Results/",name_sc_data,"_results/",name_sc_data,"_UMAP.Robj", sep=""))
 # save(sc_data_tSNE, file = paste("Results/",name_sc_data,"_results/",name_sc_data,"_tSNE.Robj", sep=""))
-# jpeg(paste("Results/",name_sc_data,"_results/",name_sc_data,"_ClusterPlot",sep=""),width=1920, height=1080)
+# jpeg(paste("Results/",name_sc_data,"_results/",name_sc_data,"_ClusterPlot.jpg",sep=""),width=1920, height=1080)
 # CombinePlots(plot=list(plot_UMAP,plot_tSNE), ncol=2)
 # dev.off()
 # write.csv(top_markers_all, file = paste("Results/",name_sc_data,"_results/",name_sc_data,"_top_30_markers.csv",sep=""))
 # save(cluster_markers, file = paste("Results/",name_sc_data,"_results/",name_sc_data,"_cluster_markers.Robj", sep=""))
 # write.csv(de_genes, file = paste("Results/",name_sc_data,"_results/",name_sc_data,"_",genes_of_interest,"ClusterExpression.csv",sep=""))
-# jpeg(paste("Results/",name_sc_data,"_results/",name_sc_data,"_",genes_of_interest,"_ClusterPlot",sep=""),width=1920, height=1080)
+# jpeg(paste("Results/",name_sc_data,"_results/",name_sc_data,"_",genes_of_interest,"_ClusterPlot.jpg",sep=""),width=1920, height=1080)
 # CombinePlots(plot=list(goi_plot_UMAP,goi_plot_tSNE), ncol=2)
 # dev.off()
 
