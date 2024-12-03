@@ -39,7 +39,6 @@ cores_ram(,)
 setwd("/home/user/Documents/organoidi_2024/Data - 3 - Organoidi_velasco")
 name_sc_data <- ""
 path_to_data <- ""
-# Specify the genes of interest OR use gene_oI()
 genes_of_interest <- c("SRCIN1") 
 
 # _______________________________________________________________________________
