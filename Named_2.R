@@ -18,8 +18,8 @@ cores_ram <- function(cores,ram) {
 }
 
 name_new_dir_0 <- paste(getwd(),"/Results/Cluster_from_paper",sep="")
-if (dir.exists(name_new_dir)==FALSE) {
-  dir.create(name_new_dir)
+if (dir.exists(name_new_dir_0)==FALSE) {
+  dir.create(name_new_dir_0)
 } 
 
 timepoints <- c("23days","1month","1.5month","2month","3month","4month","5month","6month")
@@ -34,8 +34,8 @@ for (i in 1:length(timepoints)) {
   path_to_data <- paste("Data/expression_",timepoints[i],sep="")
   
   name_new_dir_1 <- paste(name_new_dir_0,"/Named_clusters_",timepoints[i],sep="")
-  if (dir.exists(name_new_dir)==FALSE) {
-    dir.create(name_new_dir)
+  if (dir.exists(name_new_dir_1)==FALSE) {
+    dir.create(name_new_dir_1)
   } 
 
   raw_sc_data <- Read10X(data.dir = path_to_data, gene.column = 1) 
