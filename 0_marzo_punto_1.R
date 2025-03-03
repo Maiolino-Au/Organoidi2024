@@ -1,4 +1,6 @@
-setwd("C:/Users/Aurelio/Desktop/Organoidi_2024/")
+# setwd("C:/Users/Aurelio/Desktop/Organoidi_2024/")
+
+setwd("/home/user/Documents/organoidi_2024/Data - 3 - Organoidi_velasco")
 
 library(Seurat)
 library(tidyverse)
