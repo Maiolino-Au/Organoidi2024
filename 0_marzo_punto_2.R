@@ -1,4 +1,6 @@
-setwd("C:/Users/Aurelio/Desktop/Organoidi_2024/")
+# setwd("C:/Users/Aurelio/Desktop/Organoidi_2024/")
+
+setwd("/home/user/Documents/organoidi_2024/Data - 3 - Organoidi_velasco")
 
 library(Seurat)
 library(tidyverse)
@@ -11,6 +13,9 @@ library(dplyr)
 # devtools::install_github('immunogenomics/presto')
 
 library(presto)
+
+# install.packages('enrichR')
+library(enrichR)
 
 cores_ram <- function(cores,ram) {
   plan("multisession", workers = cores)
@@ -30,7 +35,76 @@ cores_ram(1,30)
 
 # _______________________________________________________________________________
 
-
-a <- read.csv("D:/Organoidi_2024/Results/Cluster_from_paper/Named_CellType_23days/Named_23days_top_30_markers_CellType.csv")
+y<-1
+a <- read.csv(paste(getwd(),"/Results/Cluster_from_paper/Named_CellType_",timepoints[y],"/Named_",timepoints[y],"_top_30_markers_CellType.csv", sep=""))
 b<-c(a[a$cluster=="aRG",8])
 save(b,file = paste(getwd(),"/top_genes_23d_aRG.csv",sep=""))
+
+CellType <- unique(a$cluster)
+top_genes_per_cell <- data.frame()
+
+for (i in 1:length(CellType)) {
+  top_genes_per_cell[i,1] <- CellType[i]
+  top_genes_per_cell[i,2:31] <- c(a[a$cluster==CellType[i],8])
+}
+
+
+# _______________________________________________________________________________
+
+
+# List available databases
+dbs <- listEnrichrDbs()
+print(dbs)
+
+
+gene_list <- c(a[a$cluster==CellType[i],8])
+
+# Perform enrichment analysis
+enriched <- enrichr(gene_list, databases = c("PanglaoDB_Augmented_2021", "ARCHS4_Tissues"))
+
+# View results
+print(enriched$PanglaoDB_Augmented_2021)
+
+
+# _______________________________________________________________________________
+
+
+library(devtools)
+install_github("ctlab/fgsea")
+install.packages("msigdbr")
+library(fgsea)
+library(msigdbr)
+
+gene_ranks <- data.frame(c(a[a$cluster==CellType[i],8]),c(a[a$cluster==CellType[i],3]))
+gene_ranks <- sort(gene_ranks, decreasing = TRUE)  # Ensure sorted ranking
+
+
+# Extract gene names and log2FC values
+gene_ranks <- setNames(a[a$cluster == CellType[i], 3],  # Log fold changes
+                       a[a$cluster == CellType[i], 8])  # Gene names
+
+# Sort in descending order (required for GSEA)
+gene_ranks <- sort(gene_ranks, decreasing = TRUE)
+
+fgseaRes <- fgsea(pathways = gene_sets, 
+                  stats = gene_ranks, 
+                  # nperm = 1000,
+                  scoreType = "pos"
+                  )
+
+
+# Load a reference database (e.g., MSigDB Cell Type Signatures)
+msigdb <- msigdbr(species = "Homo sapiens", category = "C8")  # C8 = cell type signatures
+
+# Convert to list format
+gene_sets <- split(msigdb$gene_symbol, msigdb$gs_name)
+
+# Run fgsea
+fgseaRes <- fgsea(pathways = gene_sets, 
+                  stats = gene_list,  # If you have fold changes
+                  minSize = 10, maxSize = 500, 
+                  nperm = 1000)
+
+# Show top enriched cell types
+head(fgseaRes[order(fgseaRes$padj), ])
+
