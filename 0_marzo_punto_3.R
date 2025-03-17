@@ -1,7 +1,5 @@
 setwd("C:/Users/Aurelio/Desktop/Organoidi_2024/")
 
-# setwd("/home/user/Documents/organoidi_2024/Data - 3 - Organoidi_velasco")
-
 library(Seurat)
 library(tidyverse)
 library(future)
@@ -31,6 +29,10 @@ cores_ram(1,30)
 
 
 # _______________________________________________________________________________
+
+i <- 1
+
+path_to_data <- paste("Data/expression_",timepoints[i], sep="")
 
 sc_data <- Read10X(data.dir = path_to_data, gene.column = 1) 
 # Create Seurat object
@@ -139,3 +141,17 @@ ggplot(acta1_stats, aes(x = cluster, y = ACTA1.mean)) +
        y = "ACTA1 Expression (Mean ± SD)") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
+# _______ 17 marzo
+
+gene_count <- FetchData(sc_data, vars = genes_of_interest)
+
+gene_counts <- GetAssayData(sc_data, slot = "counts")[genes_of_interest, ]
+
+summary(FetchData(sc_data, vars = genes_of_interest))
+summary(GetAssayData(sc_data, slot = "counts")[genes_of_interest, ])
+
+cluster_cells <- WhichCells(sc_data, ident = "aRG")
+gene_counts_cluster1 <- GetAssayData(sc_data, slot = "counts")[genes_of_interest, cluster_cells]
