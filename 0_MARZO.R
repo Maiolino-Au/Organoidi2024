@@ -99,6 +99,99 @@ print(enriched$PanglaoDB_Augmented_2021)
 
 
 
+# ______________
+
+
+# Fetch the expression data for SRCIN1 and Actin
+genes_of_interest <- c("SRCIN1", "ACTA1")
+expression_data <- FetchData(sc_data, vars = genes_of_interest)
+
+
+
+# Plot the expression levels of SRCIN1 and Actin across external clusters
+VlnPlot(sc_data, features = genes_of_interest, group.by = "external_cluster")
+
+
+
+# Perform ANOVA for each gene (SRCIN1 and Actin) to compare their expression levels across clusters
+anova_results <- lapply(genes_of_interest, function(gene) {
+  # Perform ANOVA
+  aov_result <- aov(expression_data[[gene]] ~ sc_data$external_cluster)
+  summary(aov_result)
+})
+
+# View the results
+anova_results
+
+
+
+# Fetch normalized data
+expression_data_norm <- FetchData(sc_data, vars = genes_of_interest, layer = "data")
+
+# Plot with normalized data
+VlnPlot(sc_data, features = genes_of_interest, group.by = "external_cluster", layer = "data")
+
+
+# _____________
+
+
+# Fetch expression data for SRCIN1 and ACTA1
+genes_of_interest <- c("SRCIN1", "ACTA1")
+expression_data <- FetchData(sc_data, vars = genes_of_interest)
+
+# Calculate the ratio of SRCIN1 to ACTA1 for each cell
+expression_data$SRCIN1_ACTA1_ratio <- expression_data$SRCIN1 / expression_data$ACTA1
+
+# Add the cluster information to the data
+expression_data$cluster <- sc_data$external_cluster[colnames(sc_data)]
+
+# Now, we have a data frame where each cell has the SRCIN1/ACTA1 ratio and its associated cluster
+
+
+
+library(ggplot2)
+
+# Plot a histogram of the SRCIN1/ACTA1 ratio for each cluster
+ggplot(expression_data, aes(x = SRCIN1_ACTA1_ratio, fill = cluster)) +
+  geom_histogram(binwidth = 0.2, position = "dodge", alpha = 0.7) +
+  labs(title = "Histogram of SRCIN1/ACTA1 Ratio by Cluster",
+       x = "SRCIN1/ACTA1 Ratio",
+       y = "Number of Cells") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_manual(values = rainbow(length(unique(expression_data$cluster)))) 
+
+
+
+# Calculate the mean and standard deviation of ACTA1 expression for each cluster
+acta1_stats <- aggregate(ACTA1 ~ cluster, data = expression_data, FUN = function(x) c(mean = mean(x), sd = sd(x)))
+
+# Flatten the data for better visualization
+acta1_stats <- do.call(data.frame, acta1_stats)
+
+# Plot the mean and SD of ACTA1 expression across clusters
+ggplot(acta1_stats, aes(x = cluster, y = ACTA1.mean)) +
+  geom_bar(stat = "identity", fill = "lightblue", color = "black") +
+  geom_errorbar(aes(ymin = ACTA1.mean - ACTA1.sd, ymax = ACTA1.mean + ACTA1.sd), width = 0.2) +
+  labs(title = "Variation of ACTA1 Expression Across Clusters",
+       x = "Cluster",
+       y = "ACTA1 Expression (Mean ± SD)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
+# _______ 17 marzo
+
+gene_count <- FetchData(sc_data, vars = genes_of_interest)
+
+gene_counts <- GetAssayData(sc_data, slot = "counts")[genes_of_interest, ]
+
+summary(FetchData(sc_data, vars = genes_of_interest))
+summary(GetAssayData(sc_data, slot = "counts")[genes_of_interest, ])
+
+cluster_cells <- WhichCells(sc_data, ident = "aRG")
+gene_counts_cluster1 <- GetAssayData(sc_data, slot = "counts")[genes_of_interest, cluster_cells]
 
 
 
