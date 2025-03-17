@@ -39,7 +39,11 @@ y <- 1
 load(paste(getwd(),"/Results/Cluster_from_paper/Named_CellType_",timepoints[y],"/Named_CellType",timepoints[y],".Robj", sep = ""))
 load(paste(getwd(),"/Results/Cluster_from_paper/Named_CellType_",timepoints[y],"/Named_",timepoints[y],"_CellType_markers.Robj", sep = ""))
 
-top100 <- cluster_markers %>% group_by(cluster) %>% top_n(n = 100, wt = avg_log2FC) %>% as.data.frame()
+top100 <- cluster_markers %>% 
+  group_by(cluster) %>% 
+  top_n(n = 100, wt = avg_log2FC) %>% 
+  as.data.frame() %>% 
+  arrange(cluster, desc(avg_log2FC))
 
 # __________________________________________________________________________________
 # ___________________________________ Annotation ___________________________________
@@ -47,7 +51,7 @@ top100 <- cluster_markers %>% group_by(cluster) %>% top_n(n = 100, wt = avg_log2
 
 # ___________________________________ ChatGPT ___________________________________
 
-CellType <- unique(top100$cluster)
+CellType <- c(unique(top100$cluster))
 top_genes_per_cell <- data.frame()
 
 for (i in 1:length(CellType)) {
@@ -103,7 +107,7 @@ print(enriched$PanglaoDB_Augmented_2021)
 
 
 # Fetch the expression data for SRCIN1 and Actin
-genes_of_interest <- c("SRCIN1", "ACTA1")
+genes_of_interest <- c("SRCIN1", "ACTB", "ACTG1")
 expression_data <- FetchData(sc_data, vars = genes_of_interest)
 
 
@@ -136,7 +140,7 @@ VlnPlot(sc_data, features = genes_of_interest, group.by = "external_cluster", la
 
 
 # Fetch expression data for SRCIN1 and ACTA1
-genes_of_interest <- c("SRCIN1", "ACTA1")
+genes_of_interest <- c("SRCIN1", "ACTB")
 expression_data <- FetchData(sc_data, vars = genes_of_interest)
 
 # Calculate the ratio of SRCIN1 to ACTA1 for each cell
