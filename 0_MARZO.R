@@ -35,7 +35,8 @@ cores_ram(1,64)
 
 # __________________________________________________________________________________________
 
-y <- 1
+y <- 2
+a <- timepoints[y]
 load(paste(getwd(),"/Results/Cluster_from_paper/Named_CellType_",timepoints[y],"/Named_CellType",timepoints[y],".Robj", sep = ""))
 load(paste(getwd(),"/Results/Cluster_from_paper/Named_CellType_",timepoints[y],"/Named_",timepoints[y],"_CellType_markers.Robj", sep = ""))
 
@@ -60,26 +61,61 @@ for (i in 1:length(CellType)) {
 }
 
 
-for (j in 1:length(CellType)) {
-  testo <- "Hi, this is a list of the 100 most diffrentially expressed genes of a cluster derived from the single cell RNA sequencing of cells taken from a brain organid. Can you give me your 3 best guesses wich cell types are they? Write giust the 3 guesses in decreasing order of probability. "
-  b <- ""
-  if (b!=testo) {b<-testo}
-  for (i in 2:101) {
-    b <- paste(b,top_genes_per_cell[j,i])
-  }
-  print(CellType[j])
-  print(b)
-  print("----------------------------------------------")
-}
-
+# for (j in 1:length(CellType)) {
+#   testo <- "Hi, this is a list of the 100 most diffrentially expressed genes of a cluster derived from the single cell RNA sequencing of cells taken from a brain organid. Can you give me your 3 best guesses wich cell types are they? Write giust the 3 guesses in decreasing order of probability. "
+#   b <- ""
+#   if (b!=testo) {b<-testo}
+#   for (i in 2:101) {
+#     b <- paste(b,top_genes_per_cell[j,i])
+#   }
+#   print(CellType[j])
+#   print(b)
+#   print("----------------------------------------------")
+# }
 
 name_new_dir_1 <- paste(name_new_dir_0,"/Annotations_ChatGPT",sep="")
 if (dir.exists(name_new_dir_1)==FALSE) {
   dir.create(name_new_dir_1)
 } 
-#Save
+
+setwd(name_new_dir_1)
+# Define file name
+output_file <- paste("Ann_ChatGPT_",timepoints[y],".txt",sep="")
+
+# Open file connection
+file_conn <- file(output_file, "w")
+
+for (j in 1:length(CellType)) {
+  testo <- "Hi, this is a list of the 100 most diffrentially expressed genes of a cluster derived from the single cell RNA sequencing of cells taken from a brain organid. Can you give me your 3 best guesses wich cell types are they? Write giust the 3 guesses in decreasing order of probability. "
+  b <- ""
+  if (b != testo) { b <- testo }
+  for (i in 2:101) {
+    b <- paste(b, top_genes_per_cell[j, i])
+  }
+  
+  # Write to file
+  write(as.character(CellType[j]), file = file_conn, append = TRUE)  # Title
+  write(b, file = file_conn, append = TRUE)            # Main text
+  write("", file = file_conn, append = TRUE)           # Empty line
+}
+
+# Close file connection
+close(file_conn)
+
+print(paste("File saved as", output_file))
+
+setwd("/home/user/Documents/organoidi_2024/Data - 3 - Organoidi_velasco")
+
+
+
 
 # ___________________________________ EnirchR ___________________________________
+
+name_new_dir_1 <- paste(name_new_dir_0,"/Annotations_EnrichR",sep="")
+if (dir.exists(name_new_dir_1)==FALSE) {
+  dir.create(name_new_dir_1)
+} 
+
 
 # List available databases
 dbs <- listEnrichrDbs()
@@ -101,13 +137,8 @@ enriched <- enrichr(gene_list, databases = c("PanglaoDB_Augmented_2021",
                                              "Azimuth_Cell_Types_2021"))
 
 # View results
-print(enriched$PanglaoDB_Augmented_2021)
+# print(enriched$PanglaoDB_Augmented_2021)
 
-name_new_dir_1 <- paste(name_new_dir_0,"/Annotations_EnrichR",sep="")
-if (dir.exists(name_new_dir_1)==FALSE) {
-  dir.create(name_new_dir_1)
-} 
-# Save
 
 # __________________________________________________________________________________
 # ___________________________________ Comparison ___________________________________
