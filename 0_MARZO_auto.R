@@ -150,6 +150,41 @@ for (y in 1:8) {
   
   
   
+  # ___________________________________ Counts ___________________________________
+  print("Counts")
+  
+  name_new_dir_1 <- paste(name_new_dir_0,"/Counts",sep="")
+  if (dir.exists(name_new_dir_1)==FALSE) {
+    dir.create(name_new_dir_1)
+  } 
+  
+  # Extract summaries
+  norm_summary <- as.vector(summary(FetchData(sc_data, vars = "SRCIN1")))
+  
+  norm_summary[1] <- gsub("Min.   :", "", norm_summary[1]) %>% as.numeric()
+  norm_summary[2] <- gsub("1st Qu.:", "", norm_summary[2]) %>% as.numeric()
+  norm_summary[3] <- gsub("Median :", "", norm_summary[3]) %>% as.numeric()
+  norm_summary[4] <- gsub("Mean   :", "", norm_summary[4]) %>% as.numeric()
+  norm_summary[5] <- gsub("3rd Qu.:", "", norm_summary[5]) %>% as.numeric()
+  norm_summary[6] <- gsub("Max.   :", "", norm_summary[6]) %>% as.numeric()
+  
+  raw_summary <- summary(GetAssayData(sc_data, layer = "counts")["SRCIN1", ])
+  
+  # Convert summaries into a data frame
+  summary_df <- data.frame(
+    Statistic = c("Min", "1st Qu.", "Median", "Mean", "3rd Qu.", "Max"),
+    Normalized = as.numeric(norm_summary),
+    Raw_Counts = as.numeric(raw_summary)
+  )
+  
+  # Save to CSV
+  write.csv(summary_df, paste(name_new_dir_1,"/Counts_",timepoints[y],".csv",sep = ""), row.names = FALSE)
+  
+  # Print to check
+  # print(summary_df)
+  
+  
+  
   # ___________________________________ Violin ___________________________________
   print("Violin")
   
