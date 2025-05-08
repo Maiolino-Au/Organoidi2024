@@ -113,7 +113,7 @@ plotting <- function(sc_data, genes_oi){
       theme_minimal()
     
     # Save the plot
-    ggsave(filename = paste(name_new_dir_partial, "/FeaturePlot_", gene, "_", timepoints[i], ".png", sep=""), plot = p1)
+    ggsave(filename = paste(name_new_dir_partial, "/FeaturePlot_", gene, "_", timepoints[time_point], ".png", sep=""), plot = p1)
   }
 }
 
