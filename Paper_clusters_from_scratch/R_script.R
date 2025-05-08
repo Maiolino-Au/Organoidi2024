@@ -28,18 +28,21 @@ if (!dir.exists(name_new_dir_partial)) {
 } 
 
 
-load_data <- function(timepoint){
+load_data <- function(time_point){
   # Load the data
-  sc_data <- Read10X(data.dir = paste0(path_to_data, "expression_", timepoints[i],), gene.column = 1)
+  sc_data <- Read10X(data.dir = paste(path_to_data, "expression_", timepoints[time_point], sep=""), gene.column = 1)
   
   # Create Seurat object
-  sc_data <- CreateSeuratObject(counts = sc_data, min.cells = 3, min.features = 500, project = timepoints[i], names.delim = "-", names.field = 2)
+  sc_data <- CreateSeuratObject(counts = sc_data, min.cells = 3, min.features = 500, project = timepoints[time_point], names.delim = "-", names.field = 2)
     
   # Normalize the data
   sc_data <- NormalizeData(sc_data, normalization.method = "LogNormalize", scale.factor = 1e6)
   
   # Find variable features
   sc_data <- FindVariableFeatures(sc_data, selection.method = "mvp", nfeatures = 2000)
+
+  # Scale the data
+  sc_data <- ScaleData(sc_data)
   
   return(sc_data)
 }
@@ -54,28 +57,72 @@ PCA_cluster <- function(sc_data, res){
   sc_data <- FindNeighbors(sc_data, dims = 1:40)
   sc_data <- FindClusters(sc_data, resolution = res)
   
-  #print(table(Idents(sc_data)))
+  print(table(Idents(sc_data)))
 
-  save(sc_data, file = paste(name_new_dir_partial, "/PCA_res_",res,"_",timepoints[i],".Robj", sep=""))
+  save(sc_data, file = paste(name_new_dir_partial, "/PCA_res_",res,"_",timepoints[time_point],".Robj", sep=""))
   return(sc_data)
 }
 
 # FIND ALL MARKERS
-cluster_markers <- FindAllMarkers(sc_data,
-                                  only.pos = TRUE,   # Considera solo i marker espressi positivamente
-                                  min.pct = 0.25,    # Percentuale minima di espressione nelle cellule del cluster
-                                  logfc.threshold = 0.25)  # Soglia minima di LogFC
+cluster_markers <- function(sc_data) {
+    # Find all markers for every cluster compared to all remaining cells
+    cluster_markers <- FindAllMarkers(sc_data,
+                                        only.pos = TRUE,   # Considera solo i marker espressi positivamente
+                                        min.pct = 0.25,    # Percentuale minima di espressione nelle cellule del cluster
+                                        logfc.threshold = 0.25)  # Soglia minima di LogFC
+    
+    # Save the markers
+    save(cluster_markers, file = paste(name_new_dir_partial, "/cluster_markers_",timepoints[time_point],".Robj", sep=""))
+    return(cluster_markers)
+}
 
-# Save the markers
-save(cluster_markers, file = paste(name_new_dir_partial, "/cluster_markers_",timepoints[i],".Robj", sep=""))
-
-de_genes_f <- function(genes_oi){
+# FIND DIFFERENTIALLY EXPRESSED GENES
+de_genes <- function(genes_oi){
     # Find differentially expressed genes
     provv <- cluster_markers %>% filter(gene %in% genes_of_interest) 
-    
+    print(provv)
     # Save the DE genes
-    save(provv, file = paste(name_new_dir_partial, "/de_genes_",timepoints[i],".txt", sep=""))
+    write.csv(provv, file = paste(name_new_dir_partial, "/de_genes_",timepoints[time_point],".csv", sep=""))
     
     return(provv)
 }
+
+
+do_iteration <- function(time_point){
+  # Load the data
+  sc_data <- load_data(time_point)
+  
+  # Run PCA and clustering
+  sc_data <- PCA_cluster(sc_data, res = 0.5)
+  
+  # Find all markers
+  cluster_markers <- cluster_markers(sc_data)
+  
+  # Find differentially expressed genes
+  de_genes <- de_genes(genes_of_interest)
+}
+
+
+
+# Plotting
+plotting <- function(sc_data, genes_oi){
+  # Plot the expression of the genes of interest
+  for (gene in genes_oi) {
+    p1 <- FeaturePlot(sc_data, features = gene, cols = c("lightgrey", "blue"), pt.size = 0.5) + 
+      ggtitle(paste("Expression of", gene)) + 
+      theme_minimal()
+    
+    # Save the plot
+    ggsave(filename = paste(name_new_dir_partial, "/FeaturePlot_", gene, "_", timepoints[i], ".png", sep=""), plot = p1)
+  }
+}
+
+
+do_iteration(1)
+# Plot the expression of the housekeeping genes
+plotting(sc_data, housekeeping_genes)
+# Plot the expression of the genes of interest
+plotting(sc_data, genes_of_interest)
+# Plot the expression of the housekeeping genes and genes of interest together
+plotting(sc_data, c(housekeeping_genes, genes_of_interest))
 
