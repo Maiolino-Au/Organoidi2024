@@ -5,8 +5,12 @@ library(future)
 library(ggplot2)
 library(dplyr)
 library(presto)
-#library(enrichR)
 library(cowplot)
+
+# Cell annotation
+library(enrichR)
+library(GPTCelltype)
+library(openai)
 
 
 # SET UP NAMES
@@ -28,6 +32,7 @@ if (!dir.exists(name_new_dir_partial)) {
 } 
 
 
+# LOAD DATA, NORMALIZE, FIND VARIABLE FEATURES, SCALE DATA
 load.data <- function(time_point){
     print(paste("Loading data for time point:", timepoints[time_point]))
 
@@ -45,12 +50,21 @@ load.data <- function(time_point){
 
     # Scale the data
     sc_data <- ScaleData(sc_data)
+
+    # Save the Scaled data
+    name_new_dir <- paste(name_new_dir_partial, "/", timepoints[time_point], sep="")
+    if (!dir.exists(name_new_dir)) {
+        dir.create(name_new_dir)
+    } 
+    print(paste("Saving PCA for time point", timepoints[time_point], "in", name_new_dir))
+    save(sc_data, file = paste(name_new_dir, "/Scaled_", timepoints[time_point], ".Robj", sep=""))
     
     return(sc_data)
 }
 
+
 # PCA&Clusterization 
-PCA.cluster <- function(sc_data, res){
+PCA.cluster <- function(res){
     print(paste("Running PCA and clustering for time point:", timepoints[time_point]))
     
     # PCA
@@ -68,34 +82,54 @@ PCA.cluster <- function(sc_data, res){
     if (!dir.exists(name_new_dir)) {
         dir.create(name_new_dir)
     } 
-
     print(paste("Saving PCA for time point", timepoints[time_point], "in", name_new_dir))
-    save(sc_data, file = paste(name_new_dir, "/PCA_res_",res,"_",timepoints[time_point],".Robj", sep=""))
+    save(sc_data, file = paste(name_new_dir, "/PCA_res_", res, "_", timepoints[time_point], ".Robj", sep=""))
 
     return(sc_data)
 }
 
+
 # FIND ALL MARKERS
-cluster.markers <- function(sc_data) {
+cluster.markers <- function() {
     print(paste("Finding all markers for time point:", timepoints[time_point]))
 
     # Find all markers for every cluster compared to all remaining cells
     cluster_markers <- FindAllMarkers(sc_data,
-                                        only.pos = TRUE,   # Considera solo i marker espressi positivamente
-                                        min.pct = 0.25,    # Percentuale minima di espressione nelle cellule del cluster
-                                        logfc.threshold = 0.25)  # Soglia minima di LogFC
+                                    only.pos = TRUE,   # Considera solo i marker espressi positivamente
+                                    min.pct = 0.25,    # Percentuale minima di espressione nelle cellule del cluster
+                                    logfc.threshold = 0.25)  # Soglia minima di LogFC
     
     # Save the markers
     name_new_dir <- paste(name_new_dir_partial, "/", timepoints[time_point], sep="")     
     if (!dir.exists(name_new_dir)) {
         dir.create(name_new_dir)
     } 
-    
     print(paste("Saving cluster markers for time point", timepoints[time_point], "in", name_new_dir))
     save(cluster_markers, file = paste(name_new_dir, "/cluster_markers_",timepoints[time_point],".Robj", sep=""))
 
     return(cluster_markers)
 }
+
+
+# RELOAD DATA
+load.sc_data <- function(time_point){
+    name_new_dir <- paste(name_new_dir_partial, "/", timepoints[time_point], sep="")
+    load(paste(name_new_dir, "/cluster_markers_",timepoints[time_point],".Robj", sep=""))
+    return(sc_data)
+}
+
+load.clusters <- function(time_point, res){
+    name_new_dir <- paste(name_new_dir_partial, "/", timepoints[time_point], sep="")
+    load(paste(name_new_dir, "/PCA_res_", res, "_", timepoints[time_point], ".Robj", sep=""))
+    return(sc_data)
+}
+
+load.markers <- function(time_point){
+    name_new_dir <- paste(name_new_dir_partial, "/", timepoints[time_point], sep="")
+    load(paste(name_new_dir, "/cluster_markers_", timepoints[time_point], ".Robj", sep=""))
+    return(cluster_markers)
+}
+
 
 # FIND DIFFERENTIALLY EXPRESSED GENES
 de.genes <- function(genes_oi){
@@ -110,38 +144,99 @@ de.genes <- function(genes_oi){
     if (dir.exists(name_new_dir)) {
         dir.create(name_new_dir)
     }  
-
     print(paste("Saving differentially expressed genes for time point", timepoints[time_point], "in", name_new_dir))
-    write.csv(de_genes, file = paste(name_new_dir, "/de_genes_",timepoints[time_point],".csv", sep=""))
+    write.csv(de_genes, file = paste(name_new_dir, "/de_genes_", timepoints[time_point], ".csv", sep=""))
     
     return(de_genes)
 }
 
 
-# MAIN FUNCTION
-print(paste("Processing time point:", timepoints[time_point]))
+# ANNOTATION OF THE CLUSTERS
+# EnrichR
 
-# LOAD LIBRARIES
-library(Seurat)
-library(tidyverse)
-library(future)
-library(ggplot2)
-library(dplyr)
-library(presto)
-#library(enrichR)
-library(cowplot)
+
+# GPTCelltype
+# Paper:            https://doi.org/10.1038/s41592-024-02235-4
+# GitHub:           https://github.com/Winnie09/GPTCelltype
+# To install:       install.packages("openai")
+#                   remotes::install_github("Winnie09/GPTCelltype")
+
+
+
+
+# PLOTS!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    # distribution of the genes of interest in the cells of the various clusters
+    # compare with the distribution of the housekeeping genes
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# MAIN FUNCTION
 
 # Load the data
-sc_data <- load.data(time_point)
+sc_data <- load.data(1)
+time_point <- sc_data$time_point
+sc_data <- sc_data$sc_data
 
 # Run PCA and clustering
 sc_data <- PCA.cluster(sc_data, res = 1)
+sc_data <- PCA.cluster(res =1)
 
 # Find all markers
 cluster_markers <- cluster.markers(sc_data)
+sluster_markers <- cluster.markers()
 
 # Find differentially expressed genes
 de_genes <- de.genes(genes_of_interest)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
