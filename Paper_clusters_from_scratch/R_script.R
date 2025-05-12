@@ -141,7 +141,7 @@ de.genes <- function(genes_oi){
     
     # Save the DE genes
     name_new_dir <- paste(name_new_dir_results, "/", timepoints[time_point], sep="")     
-    if (dir.exists(name_new_dir)) {
+    if (!dir.exists(name_new_dir)) {
         dir.create(name_new_dir)
     }  
     print(paste("Saving differentially expressed genes for time point", timepoints[time_point], "in", name_new_dir))
