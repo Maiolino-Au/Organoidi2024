@@ -109,7 +109,8 @@ cluster.markers <- function() {
     return(cluster_markers)
 }
 
-# FIND CONSERVED MARKERS____________________________________________________________________________________________________________
+# FIND CONSERVED MARKERS - will find markers that are conserved between two groups 
+# conserved.markers <- function
 
 # RELOAD DATA
 load.sc_data <- function(time_point) {
