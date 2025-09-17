@@ -24,10 +24,7 @@ de.genes <- function(
 ) {
     cluster_markers <- read.csv(paste0(dir_save, file_name, "/", file_name, "_cluster_markers.csv"))
 
-    de_list <- list(
-        Genes_of_interest = cluster_markers %>% filter(gene %in% goi),
-        Housekeeping_genes = cluster_markers %>% filter(gene %in% hk)
-    )
+    de_list <- cluster_markers %>% filter(gene %in% goi)
 
     for (nm in names(de_list)) {
         if (nrow(de_list[[nm]]) > 0) de_list[[nm]]$type <- as.character(nm)

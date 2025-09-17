@@ -38,10 +38,10 @@ for (file_name in timepoints) {
 
     # Save
     # Seurat Obj
-    saveRDS(sc_data_clustered, file = paste0(dir_results, file_name, "_SeuratObj.rds"))
+    saveRDS(sc_data_clustered, file = paste0(dir_results, "/", file_name, "_SeuratObj.rds"))
 
     # Cluster
-    write.csv(sc_data_clustered@meta.data, file = paste0(dir_results, file_name, "_SeuratObj_meatadata.csv"))
+    write.csv(sc_data_clustered@meta.data, file = paste0(dir_results, "/", file_name, "_SeuratObj_meatadata.csv"))
 
     # PLOTS
     for (nm in names(cluster_plots)) {
