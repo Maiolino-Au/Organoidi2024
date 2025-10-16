@@ -2,6 +2,9 @@ FROM ghcr.io/maiolino-au/monocle:latest
 # To add: SingleR
 RUN R -e "devtools::install_github('dviraran/SingleR')"
 RUN R -e "install.packages('tictoc')"
+
+RUN pip3 install anndata h5py numpy scipy pandas scanpy
+
 RUN R -e "BiocManager::install(c('zellkonverter', 'scuttle'))"
 #; library(reticulate); reticulate::install_miniconda()"
 # RUN /root/.local/share/r-miniconda/bin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main
