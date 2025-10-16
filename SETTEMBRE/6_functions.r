@@ -26,9 +26,7 @@ total_time <- function(seconds) {
 
 load.data <- function(
     file_name,
-    data_path = path_to_data,
-    output = F,
-    reduced.output = T 
+    data_path = path_to_data
 ) {
     # Load the data
     data <- Read10X(data.dir = paste(data_path, "expression_", file_name, sep = ""), gene.column = 1)
@@ -38,10 +36,11 @@ load.data <- function(
 
 preprocessing <- function(
     data,
+    file_name,
     output = F
 ) {
     # Create Seurat object
-    sc_data <- CreateSeuratObject(counts = data, min.cells = 3, min.features = 500, names.delim = "-", names.field = 2)
+    sc_data <- CreateSeuratObject(counts = data, min.cells = 3, min.features = 500, project = file_name, names.delim = "-", names.field = 2)
 
     # Normalize the data
     sc_data <- NormalizeData(sc_data, normalization.method = "LogNormalize", scale.factor = 1e6, verbose = output)
@@ -57,9 +56,11 @@ preprocessing <- function(
 
 PCA.cluster <- function(
     data, 
+    file_name,
     res = 1, 
     n_dim = 20, 
-    save = F,
+    save_dir = F,
+    save_add_on = "",
     output = F   
 ) {
     # PCA
@@ -74,12 +75,8 @@ PCA.cluster <- function(
     #print(table(Idents(data)))
 
     # Save the parial
-    if (save != F) {
-        name_new_dir <- paste("Partial/", save, "/cluster", param, sep="")
-        if (!dir.exists(name_new_dir)) {dir.create(name_new_dir)} 
-    
-        print(paste("Saving PCA for time point", save, "in", name_new_dir))
-        save(data, file = paste(name_new_dir, "/PCA_res_", res, "_dim_", n_dim, "_", save, ".Robj", sep=""))
+    if (save_dir != F) {
+        save(data, file = paste0(save_dir, "/Clustered", file_name, save_add_on, ".Robj"))
     }
     
     return(data)
