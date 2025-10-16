@@ -2,7 +2,7 @@ FROM ghcr.io/maiolino-au/monocle:latest
 # To add: SingleR
 RUN R -e "devtools::install_github('dviraran/SingleR')"
 RUN R -e "install.packages('tictoc')"
-RUN R -e "BiocManager::install('zellkonverter')"
+RUN R -e "BiocManager::install('zellkonverter'); library(reticulate); reticulate::install_miniconda(); reticulate::py_install(c('anndata', 'h5py', 'numpy', 'scipy'))"
 
 # Download the scripts for sep/oct_2025 analyses
 WORKDIR /scripts_bersia_plots
