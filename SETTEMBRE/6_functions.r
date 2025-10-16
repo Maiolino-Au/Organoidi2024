@@ -12,7 +12,11 @@ suppressPackageStartupMessages(library(enrichR))
 suppressPackageStartupMessages(library(org.Hs.eg.db))
 suppressPackageStartupMessages(library(AnnotationDbi))
 
+suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(SingleR))
+suppressPackageStartupMessages(library(scuttle))
+suppressPackageStartupMessages(library(zellkonverter))
+
 
 
 total_time <- function(seconds) {
@@ -29,6 +33,7 @@ load.data <- function(
     data_path = path_to_data
 ) {
     # Load the data
+    print(paste(data_path, "expression_", file_name, sep = ""))
     data <- Read10X(data.dir = paste(data_path, "expression_", file_name, sep = ""), gene.column = 1)
 
     return(data)
@@ -42,11 +47,21 @@ preprocessing <- function(
     # Create Seurat object
     sc_data <- CreateSeuratObject(counts = data, min.cells = 3, min.features = 500, project = file_name, names.delim = "-", names.field = 2)
 
+    mito.genes <- grep(pattern = "^MT-", x = rownames(x = sc_data), value = TRUE)
+    percent.mito <- Matrix::colSums(GetAssayData(sc_data, slot='counts')[mito.genes, ]) / Matrix::colSums(GetAssayData(sc_data, slot="counts"))
+    sc_data[['percent.mito']] <- percent.mito
+    ribo.genes <- grep("^RP[S,L]",rownames(sc_data), value = TRUE)
+    percent.ribo <- Matrix::colSums(GetAssayData(sc_data, slot='counts')[ribo.genes, ]) / Matrix::colSums(GetAssayData(sc_data, slot="counts"))
+    sc_data[['percent.ribo']] <- percent.ribo
+
     # Normalize the data
     sc_data <- NormalizeData(sc_data, normalization.method = "LogNormalize", scale.factor = 1e6, verbose = output)
 
     # Find variable features
     sc_data <- FindVariableFeatures(sc_data, selection.method = "mvp", nfeatures = 2000, verbose = output)
+
+    sc_data = CellCycleScoring(sc_data, s.features = cc.genes$s.genes, g2m.features = cc.genes$g2m.genes)
+sc_data$CC.Difference <- sc_data$S.Score - sc_data$G2M.Score
 
     # Scale the data
     sc_data <- ScaleData(sc_data, verbose = output)
@@ -58,8 +73,8 @@ PCA.cluster <- function(
     data, 
     file_name,
     res = 1, 
-    n_dim = 20, 
-    save_dir = F,
+    n_dim = 1:20, 
+    dir_save = F,
     save_add_on = "",
     output = F   
 ) {
@@ -75,29 +90,67 @@ PCA.cluster <- function(
     #print(table(Idents(data)))
 
     # Save the parial
-    if (save_dir != F) {
-        save(data, file = paste0(save_dir, "/Clustered", file_name, save_add_on, ".Robj"))
+    if (dir_save != F) {
+        save(data, file = paste0(dir_save, "/Clustered_", file_name, "_", save_add_on, ".Robj"))
     }
     
     return(data)
 }
 
-cluster.plot <- function(
+plottamelo.tutto <- function(
     data,
-    file_name = timepoints[time_point],
+    file_name,
+    genes_of_interest = genes_of_interest,
+    dir_save = dir_save,
+    save_add_on,
     pt.size = 1,
     print_plot = F
 ) { 
-    plots <- list(
-        UMAP = DimPlot(data, reduction = "umap", label = TRUE, pt.size = pt.size) + 
-            ggtitle(paste("UMAP -",file_name)),
-        PCA = DimPlot(data, reduction = "pca", label = TRUE, pt.size = pt.size) + 
-            ggtitle(paste("PCA -",file_name))
-    )
+    # umap
+    umap <- DimPlot(data, reduction = "umap", label = TRUE, pt.size = pt.size) + 
+        ggtitle(paste("UMAP -",file_name))
 
-    if (print_plot) {print(plots)}
-    
-    return(plots)
+    ggsave(filename = paste0(dir_save, "Plot_", file_name, "_", save_add_on,"_umap.png"), 
+           plot = umap, 
+           width = 1920*2, height = 1920*2, units = "px")
+
+    plot_blend <- FeaturePlot(sc_data, 
+                              features = genes_of_interest, 
+                              blend = T, 
+                              ncol = 2, 
+                              cols = c("gray90", "blue", "red")) &
+      theme(aspect.ratio = 1)
+
+    for (i in 1:4) {
+        ggsave(filename = paste0(dir_save, "Plot_", file_name, "_", save_add_on,"_blend_", i, ".png"), 
+               plot = plot_blend[[i]], 
+               width = 1920*2, height = 1920*2, units = "px")
+    }
+
+    plot_blend <- (plot_blend[[1]] | plot_blend[[2]]) /
+                  (plot_blend[[3]] | plot_blend[[4]]) +
+                  plot_annotation(
+                    title = paste(timepoint, "-", genes_of_interest[1], "&", genes_of_interest[2], "Expression Blend"),
+                    subtitle = "UMAP colored by expression levels",
+                    caption = "Subset of clusters with avg_log2FC > 0.6 - Seurat FeaturePlot (blend = TRUE)"
+                  )
+
+    ggsave(
+    filename = paste0(dir_save, "Plot_", file_name, "_", save_add_on, "_blend_0.png"),
+    plot = plot_blend,
+    ,  width = 1920*4, height = 1920*2, units = "px"
+)
+
+    ggsave(
+    filename = paste0(dir_save, "Plot_", file_name, "_", save_add_on,"_umap&blend.png"),
+    plot = umap | plot_blend+
+              plot_annotation(
+                title = paste(timepoint, "-", genes_of_interest[1], "&", genes_of_interest[2], "Expression Blend"),
+                subtitle = "UMAP colored by expression levels",
+                caption = "Subset of clusters with avg_log2FC > 0.6 - Seurat FeaturePlot (blend = TRUE)"
+              ),
+    ,  width = 1920*4, height = 1920*2, units = "px"
+)
 }
 
 cluster.markers <- function(
