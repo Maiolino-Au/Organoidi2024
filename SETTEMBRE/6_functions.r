@@ -45,28 +45,28 @@ preprocessing <- function(
     output = F
 ) {
     # Create Seurat object
-    sc_data <- CreateSeuratObject(counts = data, min.cells = 3, min.features = 500, project = file_name, names.delim = "-", names.field = 2)
+    data <- CreateSeuratObject(counts = data, min.cells = 3, min.features = 500, project = file_name, names.delim = "-", names.field = 2)
 
-    mito.genes <- grep(pattern = "^MT-", x = rownames(x = sc_data), value = TRUE)
-    percent.mito <- Matrix::colSums(GetAssayData(sc_data, slot='counts')[mito.genes, ]) / Matrix::colSums(GetAssayData(sc_data, slot="counts"))
-    sc_data[['percent.mito']] <- percent.mito
-    ribo.genes <- grep("^RP[S,L]",rownames(sc_data), value = TRUE)
-    percent.ribo <- Matrix::colSums(GetAssayData(sc_data, slot='counts')[ribo.genes, ]) / Matrix::colSums(GetAssayData(sc_data, slot="counts"))
-    sc_data[['percent.ribo']] <- percent.ribo
+    mito.genes <- grep(pattern = "^MT-", x = rownames(x = data), value = TRUE)
+    percent.mito <- Matrix::colSums(GetAssayData(data, slot='counts')[mito.genes, ]) / Matrix::colSums(GetAssayData(data, slot="counts"))
+    data[['percent.mito']] <- percent.mito
+    ribo.genes <- grep("^RP[S,L]",rownames(data), value = TRUE)
+    percent.ribo <- Matrix::colSums(GetAssayData(data, slot='counts')[ribo.genes, ]) / Matrix::colSums(GetAssayData(data, slot="counts"))
+    data[['percent.ribo']] <- percent.ribo
 
     # Normalize the data
-    sc_data <- NormalizeData(sc_data, normalization.method = "LogNormalize", scale.factor = 1e6, verbose = output)
+    data <- NormalizeData(data, normalization.method = "LogNormalize", scale.factor = 1e6, verbose = output)
 
     # Find variable features
-    sc_data <- FindVariableFeatures(sc_data, selection.method = "mvp", nfeatures = 2000, verbose = output)
+    data <- FindVariableFeatures(data, selection.method = "mvp", nfeatures = 2000, verbose = output)
 
-    sc_data = CellCycleScoring(sc_data, s.features = cc.genes$s.genes, g2m.features = cc.genes$g2m.genes)
-sc_data$CC.Difference <- sc_data$S.Score - sc_data$G2M.Score
+    data = CellCycleScoring(data, s.features = cc.genes$s.genes, g2m.features = cc.genes$g2m.genes)
+    data$CC.Difference <- data$S.Score - data$G2M.Score
 
     # Scale the data
-    sc_data <- ScaleData(sc_data, verbose = output)
+    data<-ScaleData(data, features=VariableFeatures(data),vars.to.regress=c("nCount_RNA","CC.Difference"), verbose = output)
 
-    return(sc_data)
+    return(data)
 }
 
 PCA.cluster <- function(
@@ -114,7 +114,7 @@ plottamelo.tutto <- function(
            plot = umap, 
            width = 1920*2, height = 1920*2, units = "px")
 
-    plot_blend <- FeaturePlot(sc_data, 
+    plot_blend <- FeaturePlot(data, 
                               features = genes_of_interest, 
                               blend = T, 
                               ncol = 2, 
@@ -130,7 +130,7 @@ plottamelo.tutto <- function(
     plot_blend <- (plot_blend[[1]] | plot_blend[[2]]) /
                   (plot_blend[[3]] | plot_blend[[4]]) +
                   plot_annotation(
-                    title = paste(timepoint, "-", genes_of_interest[1], "&", genes_of_interest[2], "Expression Blend"),
+                    title = paste(file_name, "-", genes_of_interest[1], "&", genes_of_interest[2], "Expression Blend"),
                     subtitle = "UMAP colored by expression levels",
                     caption = "Subset of clusters with avg_log2FC > 0.6 - Seurat FeaturePlot (blend = TRUE)"
                   )
@@ -138,18 +138,18 @@ plottamelo.tutto <- function(
     ggsave(
     filename = paste0(dir_save, "Plot_", file_name, "_", save_add_on, "_blend_0.png"),
     plot = plot_blend,
-    ,  width = 1920*4, height = 1920*2, units = "px"
+    width = 1920*4, height = 1920*2, units = "px"
 )
 
     ggsave(
     filename = paste0(dir_save, "Plot_", file_name, "_", save_add_on,"_umap&blend.png"),
     plot = umap | plot_blend+
               plot_annotation(
-                title = paste(timepoint, "-", genes_of_interest[1], "&", genes_of_interest[2], "Expression Blend"),
+                title = paste(file_name, "-", genes_of_interest[1], "&", genes_of_interest[2], "Expression Blend"),
                 subtitle = "UMAP colored by expression levels",
                 caption = "Subset of clusters with avg_log2FC > 0.6 - Seurat FeaturePlot (blend = TRUE)"
               ),
-    ,  width = 1920*4, height = 1920*2, units = "px"
+    width = 1920*4, height = 1920*2, units = "px"
 )
 }
 
