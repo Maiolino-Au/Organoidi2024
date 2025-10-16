@@ -5,10 +5,10 @@ RUN R -e "install.packages('tictoc')"
 RUN R -e "BiocManager::install('zellkonverter')"
 
 # Download the scripts for sep/oct_2025 analyses
-RUN mkdir -p /scripts_bersia_plots && \
-  cd /scripts_bersia_plots && \
-  curl -O https://raw.githubusercontent.com/Maiolino-Au/ProgrAppBioinfo_Exam/main/Scripts/Script_PAB_exam_Maiolino.R && \
-  curl -O https://raw.githubusercontent.com/Maiolino-Au/ProgrAppBioinfo_Exam/main/Scripts/Maiolino_Au.Rmd 
+WORKDIR /scripts_bersia_plots
+COPY SETTEMBRE/6_run.r .
+COPY SETTEMBRE/6_functions.r .
+
 
 ENV SHELL=/bin/bash
 CMD ["/bin/bash"]
