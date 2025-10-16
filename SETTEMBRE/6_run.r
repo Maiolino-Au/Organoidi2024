@@ -5,7 +5,7 @@ dir_save <- "/sharedFolder/Results/"
 
 run.month <- function(
     file_name,
-    ref = ref,
+    #ref = ref,
     genes_of_interest = c("SRCIN1", "SATB2"),
     path_to_data = "/Data/",
     dir_save = dir_save,
@@ -15,7 +15,8 @@ run.month <- function(
     tic()
     # Create directory for specific file
     dir.create(dir_save, recursive = T, showWarnings = F)
-    dir_results <- paste0(dir_save, "Res_", file_name, "/") %>% dir.create(recursive = T, showWarnings = F)
+    dir_results <- paste0(dir_save, "Res_", file_name, "/")
+    dir.create(dir_results, recursive = TRUE, showWarnings = FALSE)
 
     # Load data
     raw_data <- load.data(
@@ -67,6 +68,10 @@ run.month <- function(
         print_plot = F
     )
 
+    if (length(de_genes$cluster) == 0) {
+        message("No clusters match the DE genes; skipping further analysis for this timepoint.")
+        return(NULL)
+    }
     filtered_obj <- subset(sc_data, subset = seurat_clusters %in% de_genes$cluster)
     plottamelo.tutto(
         data = filtered_obj,
@@ -116,6 +121,10 @@ run.month <- function(
         print_plot = F
     )
 
+    if (length(de_genes$cluster) == 0) {
+        message("No clusters match the DE genes; skipping further analysis for this timepoint.")
+        return(NULL)
+    }
     filtered_obj <- subset(filtered_obj, subset = seurat_clusters %in% de_genes$cluster)
     plottamelo.tutto(
         data = filtered_obj,
