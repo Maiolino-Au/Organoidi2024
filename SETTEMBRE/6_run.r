@@ -72,7 +72,7 @@ run.month <- function(
         print_plot = F
     )
 
-    if (length(de_genes$cluster) == 0) {
+    if (nrow(de_genes) < 1) {
         message("No clusters match the DE genes; skipping further analysis for this timepoint.")
         return(NULL)
     }
@@ -96,7 +96,7 @@ run.month <- function(
         file_name = file_name,
         res = resolution,
         n_dim = dimensions,
-        dir_save = sir_save,
+        dir_save = dir_save,
         save_add_on = "filterd",
         output = output
     )
@@ -106,13 +106,13 @@ run.month <- function(
     # Markers of subclusters
     cluster_markers <- cluster.markers(data = filtered_obj,
         output = output)
-    write.csv(cluster_markers, file = paste0(dir_results, "/markers__filtered_", file_name, ".csv"))
+    write.csv(cluster_markers, file = paste0(dir_results, "/markers__filtered_", file_name, "_sub.csv"))
 
     print("Sub-de_genes")
 
     # Differentially expressed genes
     de_genes <- cluster_markers %>% filter(gene %in% genes_of_interest) %>% arrange(avg_log2FC) %>% filter(p_val_adj < 0.05 & avg_log2FC > 0.6) 
-    write.csv(de_genes, file = paste0(dir_results, "/de_genes_", file_name, ".csv"))
+    write.csv(de_genes, file = paste0(dir_results, "/de_genes_", file_name, "_sub.csv"))
 
     print("Sub-plots")
     
@@ -127,7 +127,7 @@ run.month <- function(
         print_plot = F
     )
 
-    if (length(de_genes$cluster) == 0) {
+    if (nrow(de_genes) < 1) {
         message("No clusters match the DE genes; skipping further analysis for this timepoint.")
         return(NULL)
     }
