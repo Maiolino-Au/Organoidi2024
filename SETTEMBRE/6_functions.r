@@ -138,7 +138,7 @@ plottamelo.tutto <- function(
     ggsave(
     filename = paste0(dir_save, "Plot_", file_name, "_", save_add_on, "_blend_0.png"),
     plot = plot_blend,
-    width = 1920*4, height = 1920*2, units = "px"
+    width = 1920*2, height = 1920*2, units = "px"
 )
 
     ggsave(
