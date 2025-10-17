@@ -7,10 +7,11 @@ run.month <- function(
     file_name,
     #ref = ref,
     genes_of_interest = c("SRCIN1", "SATB2"),
-    path_to_data = "/Data/",
+    path_to_data = "/sharedFolder/Data/",
     dir_save = dir_save,
     resolution = 1,
-    dimensions = c(1:20)
+    dimensions = c(1:20),
+    output = F
 ) {
     tic()
     # Create directory for specific file
@@ -29,7 +30,8 @@ run.month <- function(
     # Preprocessing
     sc_data <- preprocessing(
         data = raw_data,
-        file_name = file_name
+        file_name = file_name,
+        output = output
     )
 
     print("Clustering")
@@ -39,14 +41,16 @@ run.month <- function(
         file_name = file_name,
         res = resolution,
         n_dim = dimensions,
-        dir_save = dir_results,
-        save_add_on = ""
+        dir_save = dir_save,
+        save_add_on = "",
+        output = output
     )
 
     print("Markers")
 
     # Markers
-    cluster_markers <- cluster.markers(data = sc_data)
+    cluster_markers <- cluster.markers(data = sc_data,
+        output = output)
     write.csv(cluster_markers, file = paste0(dir_results, "/markers_", file_name, ".csv"))
 
     print("de_genes")
@@ -92,14 +96,16 @@ run.month <- function(
         file_name = file_name,
         res = resolution,
         n_dim = dimensions,
-        dir_save = dir_results,
-        save_add_on = "filterd"
+        dir_save = sir_save,
+        save_add_on = "filterd",
+        output = output
     )
 
     print("Sub-markers")
     
     # Markers of subclusters
-    cluster_markers <- cluster.markers(data = filtered_obj)
+    cluster_markers <- cluster.markers(data = filtered_obj,
+        output = output)
     write.csv(cluster_markers, file = paste0(dir_results, "/markers__filtered_", file_name, ".csv"))
 
     print("Sub-de_genes")
