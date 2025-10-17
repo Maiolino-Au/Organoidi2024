@@ -16,7 +16,7 @@ suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(SingleR))
 suppressPackageStartupMessages(library(scuttle))
 suppressPackageStartupMessages(library(zellkonverter))
-
+suppressPackageStartupMessages(library(patchwork))
 
 
 total_time <- function(seconds) {
