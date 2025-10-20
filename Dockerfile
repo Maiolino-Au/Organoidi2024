@@ -3,7 +3,7 @@ FROM ghcr.io/maiolino-au/monocle:latest
 RUN R -e "devtools::install_github('dviraran/SingleR')"
 RUN R -e "install.packages('tictoc')"
 
-RUN pip3 install anndata h5py numpy scipy pandas scanpy scib scvi muon
+RUN pip3 install anndata h5py numpy scipy pandas scanpy 
 
 RUN R -e "BiocManager::install(c('zellkonverter', 'scuttle'))"
 #; library(reticulate); reticulate::install_miniconda()"
@@ -12,6 +12,7 @@ RUN R -e "BiocManager::install(c('zellkonverter', 'scuttle'))"
 # RUN R -e "library(reticulate); reticulate::py_install(c('anndata', 'h5py', 'numpy', 'scipy'))"
 RUN R -e "remotes::install_github('mojaveazure/seurat-disk')"
 
+RUN pi3 install scib scvi muon
 
 # Download the scripts for sep/oct_2025 analyses
 WORKDIR /scripts_bersia_plots
