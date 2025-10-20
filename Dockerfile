@@ -14,6 +14,10 @@ RUN R -e "remotes::install_github('mojaveazure/seurat-disk')"
 
 RUN pip3 install scib scvi muon
 
+RUN mkdir /scripts
+# HNOA conversion
+COPY SETTEMBRE/hnoa_conversion /scripts/
+
 # Download the scripts for sep/oct_2025 analyses
 WORKDIR /scripts_bersia_plots
 COPY SETTEMBRE/6_run.r .
