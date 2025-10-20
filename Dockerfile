@@ -10,6 +10,7 @@ RUN R -e "BiocManager::install(c('zellkonverter', 'scuttle'))"
 # RUN /root/.local/share/r-miniconda/bin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main
 # RUN /root/.local/share/r-miniconda/bin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
 # RUN R -e "library(reticulate); reticulate::py_install(c('anndata', 'h5py', 'numpy', 'scipy'))"
+RUN R -e "remotes::install_github('mojaveazure/seurat-disk')"
 
 
 # Download the scripts for sep/oct_2025 analyses
