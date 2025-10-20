@@ -3,7 +3,7 @@ FROM ghcr.io/maiolino-au/monocle:latest
 RUN R -e "devtools::install_github('dviraran/SingleR')"
 RUN R -e "install.packages('tictoc')"
 
-RUN pip3 install anndata h5py numpy scipy pandas scanpy
+RUN pip3 install anndata h5py numpy scipy pandas scanpy scib scvi muon
 
 RUN R -e "BiocManager::install(c('zellkonverter', 'scuttle'))"
 #; library(reticulate); reticulate::install_miniconda()"
