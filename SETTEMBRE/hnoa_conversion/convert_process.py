@@ -11,4 +11,5 @@ arg = parser.parse_args()
 
 adata = sc.read_h5ad(arg.input_file)
 
-adata.write(arg.input_file.replace(".h5ad", "_processed.h5ad"))
+
+adata.write(arg.input_file.replace(".h5ad", "_processed.h5seurat"))
