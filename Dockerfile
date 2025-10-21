@@ -40,7 +40,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libcurl4-openssl-dev libssl-dev libxml2-dev libfontconfig1-dev \
     libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libharfbuzz-dev \
     libfribidi-dev make cmake gfortran libxt-dev liblapack-dev libblas-dev \
-    sudo wget zlib1g-dev libbz2-dev liblzma-dev libncurses5-dev pandoc git && \
+    sudo wget zlib1g-dev libbz2-dev liblzma-dev libncurses5-dev pandoc git nano && \
     rm -rf /var/lib/apt/lists/*
 
 # Python
@@ -73,6 +73,7 @@ RUN mkdir /scripts
 
 # HNOA conversion
 COPY SETTEMBRE/hnoa_conversion /scripts/
+RUN sudo chmod -R 777 /scripts
 
 # Download the scripts for sep/oct_2025 analyses
 WORKDIR /scripts_bersia_plots
