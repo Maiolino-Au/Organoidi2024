@@ -73,8 +73,23 @@ run.month <- function(
     )
 
     # Annotation
+    sc_data <- annotate.singler(
+        data = sc_data, 
+        file_name = file_name,
+        ref = ref,
+        dir_save = dir_save,
+        output = F
+    )
 
-    
+    plottamelo.tutto(
+        data = sc_data,
+        file_name = file_name,
+        genes_of_interest = genes_of_interest,
+        dir_save = dir_results,
+        save_add_on = "SingleR_annotation",
+        pt.size = 1,
+        print_plot = F
+    )
 
     elapsed <- toc(log = TRUE, quiet = T)
     return(total_time(elapsed$toc - elapsed$tic))
@@ -84,9 +99,19 @@ run.month <- function(
 #use_python("/usr/bin/python3", required = TRUE)
 #library(zellkonverter)
 
-ref <- LoadH5Seurat("/SingleR_reference/HNOA_2_processed.h5seurat")
+#ref <- LoadH5Seurat("/SingleR_reference/HNOA_cleaned_seurat.rds")
 
+library(zellkonverter)
+library(SingleCellExperiment)
+library(scuttle)
+library(SingleR)
+ref <- readH5AD("/SingleR_reference/HNOA_cleaned.h5ad")
 
+# Convert to SingleCellExperiment
+ref <- as.SingleCellExperiment(ref)
+
+# Perform log-normalization (required by SingleR)
+ref <- logNormCounts(ref)
 
 for (i in timepoints) {
     run.month(
@@ -96,4 +121,8 @@ for (i in timepoints) {
         genes_of_interest = "SRCIN1",
         path_to_data = "/sharedFolder/Data/",
     )
+
+    cat("\n=============== Done -", i, "===============\n\n")
 }
+
+print("Done")
