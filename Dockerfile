@@ -66,7 +66,7 @@ RUN R -e "remotes::install_github('immunogenomics/presto')"
 
 RUN R -e "devtools::install_github('dviraran/SingleR')"
 RUN R -e "install.packages('tictoc')"
-RUN R -e "BiocManager::install(c('zellkonverter', 'scuttle'))"
+RUN R -e "BiocManager::install(c('zellkonverter', 'scuttle', 'scater'))"
 RUN R -e "remotes::install_github('mojaveazure/seurat-disk')"
 
 RUN mkdir /scripts
