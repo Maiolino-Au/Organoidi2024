@@ -1,19 +1,20 @@
 # LOAD LIBRARIES
-suppressPackageStartupMessages(library(Seurat))
-suppressPackageStartupMessages(library(tidyverse))
-suppressPackageStartupMessages(library(future))
-suppressPackageStartupMessages(library(ggplot2))
-suppressPackageStartupMessages(library(dplyr))
-suppressPackageStartupMessages(library(presto))
-suppressPackageStartupMessages(library(cowplot))
-suppressPackageStartupMessages(library(tictoc))
-
-suppressPackageStartupMessages(library(SingleCellExperiment))
-suppressPackageStartupMessages(library(SingleR))
-suppressPackageStartupMessages(library(scuttle))
-suppressPackageStartupMessages(library(zellkonverter))
-suppressPackageStartupMessages(library(patchwork))
-suppressPackageStartupMessages(library(SeuratDisk))
+suppressPackageStartupMessages({
+    library(Seurat)
+    library(tidyverse)
+    library(future)
+    library(ggplot2)
+    library(dplyr)
+    library(presto)
+    library(cowplot)
+    library(tictoc)
+    library(SingleCellExperiment)
+    library(SingleR)
+    library(scuttle)
+    library(zellkonverter)
+    library(patchwork)
+    library(SeuratDisk)
+})
 
 
 total_time <- function(seconds) {
@@ -151,4 +152,24 @@ top.genes <- function(
     top_genes_by_cluster <- cluster_markers %>% group_by(cluster) %>% top_n(n = top_n_genes, wt = avg_log2FC) %>% as.data.frame()
 
     return(top_genes_by_cluster)
+}
+
+annotate.singler <- fucntion(
+    data, 
+    file_name,
+    ref,
+    dir_save = F,
+    output = F
+) {
+    results <- SingleR(
+        test = as.SingleCellExperiment(data),
+        ref = ref,
+        labels = ref$cell_type
+    )
+
+    data$singler_labels <- results$labels
+
+    saveRDS(ref, paste0(dir_save, "/Annotated_SingleR_", file_name, ".rds"))
+    
+    return(data)
 }
