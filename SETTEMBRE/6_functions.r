@@ -14,6 +14,7 @@ suppressPackageStartupMessages({
     library(zellkonverter)
     library(patchwork)
     library(SeuratDisk)
+    library(scater)
 })
 
 
@@ -110,7 +111,8 @@ plottamelo.tutto <- function(
     umap <- DimPlot(data, reduction = "umap", label = TRUE, pt.size = pt.size) + 
     ggtitle(paste("UMAP -",file_name))
 
-    gene_plot <- FeaturePlot(data, features = genes_of_interest) &
+    gene_plot <- FeaturePlot(data, features = genes_of_interest)+ 
+    ggtitle(paste("UMAP -",file_name)) &
     theme(aspect.ratio = 1)
 
     plot_blend <- umap | gene_plot 
@@ -169,7 +171,10 @@ annotate.singler <- fucntion(
 
     data$singler_labels <- results$labels
 
-    saveRDS(ref, paste0(dir_save, "/Annotated_SingleR_", file_name, ".rds"))
+    if (dir_save != F) {
+        saveRDS(ref, paste0(dir_save, "/Annotated_SingleR_", file_name, ".rds"))
+    }
     
+        
     return(data)
 }
